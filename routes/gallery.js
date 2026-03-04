@@ -62,31 +62,54 @@ router.get('/favorites', protect, async (req, res) => {
 
 const upload = require('../middleware/uploadMiddleware'); // Your multer config file
 
+// router.post('/upload', protect, upload.single('file'), async (req, res) => {
+//   try {
+//     if (!req.file) return res.status(400).json({ message: "No file provided" });
+
+//     const newArtwork = new Artwork({
+//     // 1. userId from the 'protect' middleware
+//       userId: req.user.id, 
+      
+//       // 2. mediaUrl: Matches your schema's required field
+//       mediaUrl: `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`, 
+      
+//       // 3. title: Your schema says required: true. We use filename if no title is sent.
+//       title: req.body.title || `Post_${Date.now()}`, 
+      
+//       // 4. artist: Optional field from your schema
+//       artist: req.body.artist || req.user.name || 'Unknown Artist',
+      
+//       // 5. mediaType: Matches your enum ['image', 'video']
+//       mediaType: req.file.mimetype.startsWith('video') ? 'video' : 'image',
+//     });
+
+//     await newArtwork.save();
+//     res.status(201).json({ message: "Upload success", data: newArtwork });
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// });
+
 router.post('/upload', protect, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ message: "No file provided" });
 
+    // FORCE HTTPS: Instead of req.protocol, use https explicitly for Render
+    const protocol = req.get('host').includes('localhost') ? 'http' : 'https';
+    const fullUrl = `${protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+
     const newArtwork = new Artwork({
-    // 1. userId from the 'protect' middleware
-      userId: req.user.id, 
-      
-      // 2. mediaUrl: Matches your schema's required field
-      mediaUrl: `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`, 
-      
-      // 3. title: Your schema says required: true. We use filename if no title is sent.
-      title: req.body.title || `Post_${Date.now()}`, 
-      
-      // 4. artist: Optional field from your schema
-      artist: req.body.artist || req.user.name || 'Unknown Artist',
-      
-      // 5. mediaType: Matches your enum ['image', 'video']
+      userId: req.user.id,
+      mediaUrl: fullUrl, 
       mediaType: req.file.mimetype.startsWith('video') ? 'video' : 'image',
+      title: req.body.title || `Post_${Date.now()}`,
+      artist: req.body.artist || "Unknown Artist"
     });
 
     await newArtwork.save();
     res.status(201).json({ message: "Upload success", data: newArtwork });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(400).json({ error: err.message });
   }
 });
 
