@@ -67,8 +67,19 @@ router.post('/upload', protect, upload.single('file'), async (req, res) => {
     if (!req.file) return res.status(400).json({ message: "No file provided" });
 
     const newArtwork = new Artwork({
-      userId: req.user.id,
-      url: `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`, // Full URL for the app to see
+    // 1. userId from the 'protect' middleware
+      userId: req.user.id, 
+      
+      // 2. mediaUrl: Matches your schema's required field
+      mediaUrl: `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`, 
+      
+      // 3. title: Your schema says required: true. We use filename if no title is sent.
+      title: req.body.title || `Post_${Date.now()}`, 
+      
+      // 4. artist: Optional field from your schema
+      artist: req.body.artist || req.user.name || 'Unknown Artist',
+      
+      // 5. mediaType: Matches your enum ['image', 'video']
       mediaType: req.file.mimetype.startsWith('video') ? 'video' : 'image',
     });
 
