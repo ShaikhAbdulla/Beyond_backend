@@ -59,4 +59,24 @@ router.get('/favorites', protect, async (req, res) => {
   }
 });
 
+
+const upload = require('../middleware/upload'); // Your multer config file
+
+router.post('/upload', protect, upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ message: "No file provided" });
+
+    const newArtwork = new Artwork({
+      userId: req.user.id,
+      url: `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`, // Full URL for the app to see
+      mediaType: req.file.mimetype.startsWith('video') ? 'video' : 'image',
+    });
+
+    await newArtwork.save();
+    res.status(201).json({ message: "Upload success", data: newArtwork });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
