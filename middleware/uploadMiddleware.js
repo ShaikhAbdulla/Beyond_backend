@@ -1,5 +1,6 @@
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs'); // Import the File System module
 
 const uploadDir = path.join(__dirname, '..', 'uploads'); 
 if (!fs.existsSync(uploadDir)) {
