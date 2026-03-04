@@ -113,4 +113,14 @@ router.post('/upload', protect, upload.single('file'), async (req, res) => {
   }
 });
 
+router.get('/:id', protect, async (req, res) => {
+  try {
+    const artwork = await Artwork.findOne({ _id: req.params.id, userId: req.user.id });
+    if (!artwork) return res.status(404).json({ message: "Not found" });
+    res.json(artwork);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
