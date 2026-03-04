@@ -60,7 +60,7 @@ router.get('/favorites', protect, async (req, res) => {
 });
 
 
-const upload = require('../middleware/upload'); // Your multer config file
+const upload = require('../middleware/uploadMiddleware'); // Your multer config file
 
 router.post('/upload', protect, upload.single('file'), async (req, res) => {
   try {
