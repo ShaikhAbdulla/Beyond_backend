@@ -36,14 +36,35 @@ router.get('/', protect, async (req, res) => {
 });
 
 // 2. PATCH /media/:id/favorite (Toggle Favorite)
+// router.patch('/:id/favorite', protect, async (req, res) => {
+//   try {
+//     const media = await Artwork.findOne({ _id: req.params.id, userId: req.user.id });
+//     if (!media) return res.status(404).json({ message: "Media not found" });
+
+//     media.is_favorite = !media.is_favorite;
+//     await media.save();
+//     res.json(media);
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// });
 router.patch('/:id/favorite', protect, async (req, res) => {
   try {
+    // 1. Find the item
     const media = await Artwork.findOne({ _id: req.params.id, userId: req.user.id });
     if (!media) return res.status(404).json({ message: "Media not found" });
 
-    media.is_favorite = !media.is_favorite;
-    await media.save();
-    res.json(media);
+    // 2. Toggle the value
+    const newStatus = !media.is_favorite;
+
+    // 3. Update and return the NEW document
+    const updatedMedia = await Artwork.findOneAndUpdate(
+      { _id: req.params.id },
+      { $set: { is_favorite: newStatus } },
+      { new: true } // This returns the updated object to the frontend
+    );
+
+    res.json(updatedMedia);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
