@@ -6,7 +6,7 @@ const ArtworkSchema = new mongoose.Schema({
   mediaUrl: { type: String, required: true },
   mediaType: { type: String, enum: ['image', 'video'], default: 'image' }, // Detects file type
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  is_favorite: { type: Boolean, default: false },
+  is_favorite: { type: Boolean, default: false }, 
   createdAt: { type: Date, default: Date.now }
 });
 
